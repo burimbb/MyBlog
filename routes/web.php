@@ -20,7 +20,6 @@ Route::prefix('auth')->group(function(){
 
 */
 
-
 //Auth Routes
 Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
@@ -31,7 +30,7 @@ Route::get('/about', 'PageController@about');
 Route::get('/contact', 'PageController@contact');
 
 //Categories Route
-Route::resource('/categories','CategoryController')->except('create');
+Route::resource('/categories', 'CategoryController')->except('create');
 
 //Posts Route
 Route::resource('posts', 'PostController');
@@ -40,7 +39,7 @@ Route::resource('posts', 'PostController');
 Route::resource('tags', 'TagController')->except('create');
 
 //Blog Routes
-Route::get('blog/{slug}', 'BlogController@getSlug')->name('blog.single')->where('slug','[\w\d\_\-]+');
+Route::get('blog/{slug}', 'BlogController@getSlug')->name('blog.single')->where('slug', '[\w\d\_\-]+');
 Route::get('blog', 'BlogController@index');
 
 //Comments Routes
