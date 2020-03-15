@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Category;
 use App\Post;
 use App\Tag;
-use App\Category;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 
 class PostController extends Controller
 {
-    public function __construct(){
+    public function __construct()
+    {
         $this->middleware('auth');
     }
 
@@ -22,8 +23,9 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::orderBy('id','desc')->paginate(10);
-        return view('posts.index')->with('posts',$posts);
+        $posts = Post::orderBy('id', 'desc')->paginate(10);
+
+        return view('posts.index')->with('posts', $posts);
     }
 
     /**
@@ -35,14 +37,16 @@ class PostController extends Controller
     {
         $categories = Category::all();
         $tags = Tag::all();
-        return view('posts.create')->with('categories',$categories)
-                                    ->with('tags',$tags);
+
+        return view('posts.create')->with('categories', $categories)
+                                    ->with('tags', $tags);
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param \Illuminate\Http\Request $request
+     *
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -50,15 +54,15 @@ class PostController extends Controller
         //dd($request->tags);
         //Session::flash('success','Test');
         $validated = $request->validate([
-            'title' => 'required|max:191',
-            'slug' => 'required|alpha_dash|min:5|max:191|unique:posts,slug',
+            'title'       => 'required|max:191',
+            'slug'        => 'required|alpha_dash|min:5|max:191|unique:posts,slug',
             'category_id' => 'required|numeric',
-            'body' => 'required|max:4000',
+            'body'        => 'required|max:4000',
             'cover_image' => 'image|nullable|max:3999',
         ]);
-        
+
         //Handle file upload
-        if($request->hasFile('cover_image')){
+        if ($request->hasFile('cover_image')) {
             //Get file name with extension
             $fileNameWithExt = $request->file('cover_image')->getClientOriginalName();
             //Get just file name
@@ -68,8 +72,8 @@ class PostController extends Controller
             //File name to store
             $fileNameToStore = $fileName.'_'.time().'.'.$extension;
             //Upload image
-            $path = $request->file('cover_image')->storeAs('public/images',$fileNameToStore);
-        }else{
+            $path = $request->file('cover_image')->storeAs('public/images', $fileNameToStore);
+        } else {
             $fileNameToStore = 'default.jpg';
         }
 
@@ -89,19 +93,22 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function show($id)
     {
         $post = Post::find($id);
-        return view('posts.show')->with('post',$post);
+
+        return view('posts.show')->with('post', $post);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -109,6 +116,7 @@ class PostController extends Controller
         $post = Post::find($id);
         $categories = Category::all();
         $tags = Tag::all();
+
         return view('posts.edit')->withPost($post)
                                 ->withCategories($categories)
                                 ->withTags($tags);
@@ -117,33 +125,34 @@ class PostController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param \Illuminate\Http\Request $request
+     * @param int                      $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
     {
         $post = Post::find($id);
-        
-        if($post->slug == $request->slug){
+
+        if ($post->slug == $request->slug) {
             $validated = $request->validate([
-                'title' => 'required|max:191',
-                'body' => 'required|max:4000',
+                'title'       => 'required|max:191',
+                'body'        => 'required|max:4000',
                 'category_id' => 'required|numeric',
-                'cover_image' => 'image|nullable|max:3999'
+                'cover_image' => 'image|nullable|max:3999',
             ]);
-        }else{
+        } else {
             $validated = $request->validate([
-                'title' => 'required|max:191',
-                'slug' => 'required|alpha_dash|min:5|max:191|unique:posts,slug',
+                'title'       => 'required|max:191',
+                'slug'        => 'required|alpha_dash|min:5|max:191|unique:posts,slug',
                 'category_id' => 'required|numeric',
-                'body' => 'required|max:4000',
-                'cover_image' => 'image|nullable|max:3999'
+                'body'        => 'required|max:4000',
+                'cover_image' => 'image|nullable|max:3999',
             ]);
         }
 
-         //Handle file upload
-         if($request->hasFile('cover_image')){
+        //Handle file upload
+        if ($request->hasFile('cover_image')) {
             //Get file name with extension
             $fileNameWithExt = $request->file('cover_image')->getClientOriginalName();
             //Get just file name
@@ -153,15 +162,15 @@ class PostController extends Controller
             //File name to store
             $fileNameToStore = $fileName.'_'.time().'.'.$extension;
             //Upload image
-            $path = $request->file('cover_image')->storeAs('public/images',$fileNameToStore);
+            $path = $request->file('cover_image')->storeAs('public/images', $fileNameToStore);
         }
-        
+
         $post->title = $request->title;
         $post->slug = $request->slug;
         $post->category_id = $request->category_id;
         $post->body = $request->body;
-        if($request->hasFile('cover_image')){
-            if($post->cover_image != 'default.jpg'){
+        if ($request->hasFile('cover_image')) {
+            if ($post->cover_image != 'default.jpg') {
                 Storage::delete('public/images'.$post->cover_image);
             }
             $post->cover_image = $fileNameToStore;
@@ -176,7 +185,8 @@ class PostController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param int $id
+     *
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddCategoryIdToPosts extends Migration
 {
@@ -16,7 +16,7 @@ class AddCategoryIdToPosts extends Migration
         Schema::table('posts', function (Blueprint $table) {
             $table->unsignedBigInteger('category_id')->after('slug');
 
-            $table->foreign('category_id')  ->references('id')
+            $table->foreign('category_id')->references('id')
                                             ->on('categories')
                                             ->onDelete('cascade');
         });
